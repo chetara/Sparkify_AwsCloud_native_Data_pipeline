@@ -10,6 +10,9 @@ RUN pip install --upgrade pip
 # Install necessary Python packages
 RUN pip install boto3 pyspark
 
+# Install google-re2
+RUN pip install google-re2
+
 # Set the environment variable for UTF-8 encoding
 ENV LANG C.UTF-8
 
