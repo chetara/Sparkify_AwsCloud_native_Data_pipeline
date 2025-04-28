@@ -1,3 +1,4 @@
+import os
 import configparser
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, from_unixtime, hour, dayofmonth, weekofyear, month, year, dayofweek, monotonically_increasing_id
@@ -15,8 +16,14 @@ def create_spark_session():
     spark.sparkContext.setLogLevel("ERROR")
 
     hadoop_conf = spark._jsc.hadoopConfiguration()
-    hadoop_conf.set("fs.s3a.aws.credentials.provider", "com.amazonaws.auth.profile.ProfileCredentialsProvider")
-    hadoop_conf.set("aws.profile", "default")  # Change if you're using a named profile
+
+    # Use environment variables for AWS credentials
+    hadoop_conf.set("fs.s3a.access.key", os.getenv('AWS_ACCESS_KEY_ID'))
+    hadoop_conf.set("fs.s3a.secret.key", os.getenv('AWS_SECRET_ACCESS_KEY'))
+    hadoop_conf.set("fs.s3a.endpoint", "s3.amazonaws.com")
+
+    return spark
+
 
     return spark
 
