@@ -156,7 +156,7 @@ docker-compose up --build
 ```
 
 Go to http://localhost:8080 to access Airflow.
-✅ Phase 5: Orchestrate with Airflow
+## Phase 5: Orchestrate with Airflow
 🎛️ What is Airflow?
 
 Apache Airflow is used to schedule and monitor workflows. In this project, it triggers the PySpark ETL job daily.
