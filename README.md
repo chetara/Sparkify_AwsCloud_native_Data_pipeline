@@ -117,8 +117,83 @@ s3://sparkify-datalake-aws/
 spark-submit \
   --packages org.apache.hadoop:hadoop-aws:3.2.2 \
   spark_jobs/spark_etl.py
+  ```
 
+##  Phase 4: Containerize with Docker
+🐳 Why Docker?
+
+    Ensure consistency across environments
+
+    Simplify dependency management
+
+    Enable scalable orchestration (Airflow, Spark) with isolated services
+
+⚙️ Setup
+
+Your project includes a docker-compose.yml file that defines:
+Service	Purpose
+etl	Runs the Spark ETL job
+spark-master	Spark master node (local cluster)
+spark-worker	Spark worker node
+postgres	Metadata database for Airflow
+airflow-webserver	Airflow UI (on port 8080)
+airflow-scheduler	DAG scheduler
+🗂 Docker Folder Structure
+
+Docker/
+├── Dockerfile                # Base image for Spark & PySpark ETL
+└── .env                      # Secrets (AWS keys, Fernet key)
+
+🚀 Run with Docker
+
+# Step 1: Initialize Airflow DB (first-time only)
+``` bash 
+docker-compose run --rm airflow-webserver airflow db init
 ```
+# Step 2: Launch all services
+``` bash 
+docker-compose up --build
+```
+
+Go to http://localhost:8080 to access Airflow.
+✅ Phase 5: Orchestrate with Airflow
+🎛️ What is Airflow?
+
+Apache Airflow is used to schedule and monitor workflows. In this project, it triggers the PySpark ETL job daily.
+# Step 2: Launch all services
+⚙️ DAG Configuration
+
+DAG file: dags/sparkify_etl_dag.py
+
+    Uses BashOperator to call the Spark job:
+``` python
+bash_command='python /app/spark_etl.py'
+```
+    Passes AWS credentials from Airflow variables:
+``` python
+env={
+  'AWS_ACCESS_KEY_ID': '{{ var.value.AWS_ACCESS_KEY_ID }}',
+  'AWS_SECRET_ACCESS_KEY': '{{ var.value.AWS_SECRET_ACCESS_KEY }}',
+  'AWS_REGION': '{{ var.value.AWS_REGION }}'
+}
+```
+✅ Airflow Steps
+
+    Add secrets (in UI):
+
+        AWS_ACCESS_KEY_ID
+
+        AWS_SECRET_ACCESS_KEY
+
+        AWS_REGION
+
+    Ensure Fernet key is set in .env and used in docker-compose.yml:
+``` env
+FERNET_KEY=generated_fernet_key_here
+```
+    Trigger DAG manually or wait for schedule.
+
+
 
 ## 👨‍💻 Author
 Chetara AbdelOuahab
